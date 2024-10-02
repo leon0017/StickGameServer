@@ -3,9 +3,11 @@ using LiteNetLib.Utils;
 using StickGameServer.Shared.Packet;
 using StickGameServer.Shared.Packet.Packets;
 using StickGameServer.Shared.Util;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 class Program : INetEventListener, INetLogger
 {
@@ -33,7 +35,7 @@ class Program : INetEventListener, INetLogger
         };
 
         netServer.Start(43921);
-        Console.WriteLine("Started server.");
+        SharedLog.Info("Started server.");
         netServer.UpdateTime = (int)((1000f / TPS) * 0.7); // Max update time
 
         PacketRegistry.Init();
@@ -76,7 +78,7 @@ class Program : INetEventListener, INetLogger
                     -5.0 + (random.NextDouble() * 10.0),
                     -5.0 + (random.NextDouble() * 10.0)
                 );
-                Console.WriteLine($"MOVING BALL TO: {ballPacketDS.ballPos}");
+                SharedLog.Info($"MOVING BALL TO: {ballPacketDS.ballPos}");
                 PacketRegistry.CLIENTBOUND_BALL_PACKET.Send(ourPeer, ballPacketDS);
             }
         }
@@ -88,13 +90,13 @@ class Program : INetEventListener, INetLogger
 
     void INetEventListener.OnPeerConnected(NetPeer peer)
     {
-        Console.WriteLine($"Peer connected, peer='{peer}'");
+        SharedLog.Info($"Peer connected, peer='{peer}'");
         ourPeer = peer;
     }
 
     void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
     {
-        Console.Error.WriteLine($"Network error endPoint='{endPoint}, socketError='{socketError}'");
+        SharedLog.Severe($"Network error endPoint='{endPoint}, socketError='{socketError}'");
     }
 
     void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
@@ -104,7 +106,7 @@ class Program : INetEventListener, INetLogger
 
     void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
     {
-        //Console.WriteLine($"Peer latency update, latency='{latency}'");
+        //SharedLog.Info($"Peer latency update, latency='{latency}'");
     }
 
     void INetEventListener.OnConnectionRequest(ConnectionRequest connectionRequest)
@@ -114,7 +116,7 @@ class Program : INetEventListener, INetLogger
 
     void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
-        Console.WriteLine($"Peer disconnected peer='{peer}', disconnectInfo.Reason='{disconnectInfo.Reason}'");
+        SharedLog.Info($"Peer disconnected peer='{peer}', disconnectInfo.Reason='{disconnectInfo.Reason}'");
         if (ourPeer == peer)
             ourPeer = null;
     }
@@ -126,6 +128,6 @@ class Program : INetEventListener, INetLogger
 
     void INetLogger.WriteNet(NetLogLevel level, string str, params object[] args)
     {
-        Console.WriteLine(str + ", " + args);
+        SharedLog.Info(str + ", " + args);
     }
 }

@@ -1,11 +1,13 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using System;
+using System.Collections.Generic;
 
 namespace StickGameServer.Shared.Packet
 {
     public class PacketQueue
     {
-        private static List<UnprocessedPacket> unprocessedPackets = [];
+        private static List<UnprocessedPacket> unprocessedPackets = new();
 
         public static void Unqueue()
         {

@@ -7,24 +7,45 @@ namespace StickGameServer.Shared.Packet
     /// Either incomingPacket or outgoingPacket will be null, the other is the type of packet.
     /// Can't find a better way to do this at the moment.
     /// </summary>
-    public struct UnprocessedPacket(UnprocessedIncomingPacket? incomingPacket, UnprocessedOutgoingPacket? outgoingPacket)
+    public struct UnprocessedPacket
     {
-        public UnprocessedIncomingPacket? incomingPacket = incomingPacket;
-        public UnprocessedOutgoingPacket? outgoingPacket = outgoingPacket;
+        public UnprocessedIncomingPacket? incomingPacket;
+        public UnprocessedOutgoingPacket? outgoingPacket;
+
+        public UnprocessedPacket(UnprocessedIncomingPacket? incomingPacket, UnprocessedOutgoingPacket? outgoingPacket)
+
+        {
+            this.incomingPacket = incomingPacket;
+            this.outgoingPacket = outgoingPacket;
+        }
     }
 
-    public struct UnprocessedIncomingPacket(NetPeer peer, DeliveryMethod deliveryMethod, NetPacketReader reader)
+    public struct UnprocessedIncomingPacket
     {
-        public NetPeer peer = peer;
-        public DeliveryMethod deliveryMethod = deliveryMethod;
-        public NetPacketReader reader = reader;
+        public NetPeer peer;
+        public DeliveryMethod deliveryMethod;
+        public NetPacketReader reader;
+
+        public UnprocessedIncomingPacket(NetPeer peer, DeliveryMethod deliveryMethod, NetPacketReader reader)
+        {
+            this.peer = peer;
+            this.deliveryMethod = deliveryMethod;
+            this.reader = reader;
+        }
     }
 
-    public struct UnprocessedOutgoingPacket(NetPeer peer, DeliveryMethod deliveryMethod, NetDataWriter writer)
+    public struct UnprocessedOutgoingPacket
     {
-        public NetPeer peer = peer;
-        public DeliveryMethod deliveryMethod = deliveryMethod;
-        public NetDataWriter writer = writer;
+        public NetPeer peer;
+        public DeliveryMethod deliveryMethod;
+        public NetDataWriter writer;
+
+        public UnprocessedOutgoingPacket(NetPeer peer, DeliveryMethod deliveryMethod, NetDataWriter writer)
+        {
+            this.peer = peer;
+            this.deliveryMethod = deliveryMethod;
+            this.writer = writer;
+        }
     }
 
     public abstract class StaticPacketBase
