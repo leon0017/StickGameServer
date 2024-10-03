@@ -24,7 +24,6 @@ namespace StickGameServer.Shared.Packet.Packets
             float[] headPos = reader.GetFloatArray();
             float[] leftArmPos = reader.GetFloatArray();
             float[] rightArmPos = reader.GetFloatArray();
-            Console.WriteLine("headpos: " + string.Join(", ", headPos));
 
             foreach (Player player in Program.players)
             {
