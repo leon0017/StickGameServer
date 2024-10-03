@@ -62,7 +62,7 @@ namespace StickGameServer.Shared.Packet
             outgoingPacket.peer.Send(outgoingPacket.writer, outgoingPacket.deliveryMethod);
         }
 
-        public static void HandleIncomingPacket(NetPeer peer, NetPacketReader reader, byte channelReader, DeliveryMethod deliveryMethod)
+        public static void HandleIncomingPacket(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
         {
             UnprocessedIncomingPacket unprocessedIncomingPacket = new(peer, deliveryMethod, reader);
             UnprocessedPacket unprocessedPacket = new(unprocessedIncomingPacket, null);
