@@ -4,20 +4,22 @@ using StickGameServer.Shared.Packet;
 using StickGameServer.Shared.Packet.Packets;
 using StickGameServer.Shared.Util;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using StickGameServer.Shared.Game;
 
 class Program : INetEventListener, INetLogger
 {
     private NetManager netServer;
-    private NetPeer ourPeer;
     private NetDataWriter dataWriter;
     private ulong ticksDone = 0;
 
     private const int MAX_TPS = 60;
     private static Stopwatch gameLoopStopwatch = new();
+    public static HashSet<Player> players = new();
 
     static void Main()
     {
@@ -54,6 +56,7 @@ class Program : INetEventListener, INetLogger
             if (runs % 2 == 0) // @30TPS
             {
                 Tick();
+                ticksDone++;
             }
 
             runs++;
@@ -63,33 +66,42 @@ class Program : INetEventListener, INetLogger
     long prev = DateTimeOffset.Now.ToUnixTimeMilliseconds();
     void Tick()
     {
-        if (ourPeer != null)
-        {
-            /*if (ticksDone % 10 == 0)
-            {*/
-                ClientboundBallPacketDS ballPacketDS = new();
-                Random random = new Random();
-                ballPacketDS.ballPos = new Vec3f(-5.0 + (random.NextDouble() * 10.0),
-                    -5.0 + (random.NextDouble() * 10.0),
-                    -5.0 + (random.NextDouble() * 10.0)
-                );
-                SharedLog.Info($"MOVING BALL TO: {ballPacketDS.ballPos}");
-                SharedLog.Info("" + (DateTimeOffset.Now.ToUnixTimeMilliseconds() - prev));
-                prev = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-                PacketRegistry.CLIENTBOUND_BALL_PACKET.Send(ourPeer, ballPacketDS);
-            //}
-        }
+        // foreach (var player in players)
+        // {
+        //     /*if (ticksDone % 10 == 0)
+        //     {*/
+        //         ClientboundBallPacketDS ballPacketDS = new();
+        //         Random random = new();
+        //         ballPacketDS.ballPos = new Vec3f(-5.0 + (random.NextDouble() * 10.0),
+        //             -5.0 + (random.NextDouble() * 10.0),
+        //             -5.0 + (random.NextDouble() * 10.0)
+        //         );
+        //         SharedLog.Info($"MOVING BALL TO: {ballPacketDS.ballPos}");
+        //         SharedLog.Info("" + (DateTimeOffset.Now.ToUnixTimeMilliseconds() - prev));
+        //         prev = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        //         PacketRegistry.CLIENTBOUND_BALL_PACKET.Send(player.connection, ballPacketDS);
+        //     //}
+        // }
 
         PacketQueue.Unqueue();
         /* now done in RunPollNetLoop */
         //netServer.PollEvents(); // TODO: maybe move this and make it run more often, also maybe this running async could make things out of sync but also i cant do it sync so idk
         ticksDone++;
     }
+    
+    static readonly Random _random = new Random();
+    static TEnum RandomEnumValue<TEnum>() where TEnum : struct, Enum
+    {
+        TEnum[] vals = Enum.GetValues<TEnum>();
+        return vals[_random.Next(vals.Length)];
+    }
 
     void INetEventListener.OnPeerConnected(NetPeer peer)
     {
         SharedLog.Info($"Peer connected, peer='{peer}'");
-        ourPeer = peer;
+        peer.player = new Player(peer, "Player", RandomEnumValue<PlayerColor>());
+        peer.setupPlayer = true;
+        players.Add(peer.player);
     }
 
     void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
@@ -104,7 +116,10 @@ class Program : INetEventListener, INetLogger
 
     void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
     {
-        //SharedLog.Info($"Peer latency update, latency='{latency}'");
+        if (peer.setupPlayer)
+        {
+            peer.player.ping = latency;
+        }
     }
 
     void INetEventListener.OnConnectionRequest(ConnectionRequest connectionRequest)
@@ -115,8 +130,7 @@ class Program : INetEventListener, INetLogger
     void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
         SharedLog.Info($"Peer disconnected peer='{peer}', disconnectInfo.Reason='{disconnectInfo.Reason}'");
-        if (ourPeer == peer)
-            ourPeer = null;
+        players.Remove(peer.player);
     }
 
     void INetEventListener.OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)

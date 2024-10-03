@@ -1,17 +1,23 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
+using StickGameServer.Shared.Util;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace StickGameServer.Shared.Packet
 {
     public class PacketQueue
     {
-        private static List<UnprocessedPacket> unprocessedPackets = new();
+        private static bool unqueuing;
+        private static List<UnprocessedPacket> unprocessedPackets => (unqueuing ? unprocessedPacketsDuringUnqueue : _unprocessedPackets);
 
-        public static void Unqueue()
+        private static List<UnprocessedPacket> unprocessedPacketsDuringUnqueue = new();
+        private static List<UnprocessedPacket> _unprocessedPackets = new();
+
+        private static void ProcessPackets(List<UnprocessedPacket> packets)
         {
-            foreach (UnprocessedPacket unprocessedPacket in unprocessedPackets)
+            foreach (UnprocessedPacket unprocessedPacket in packets)
             {
                 if (unprocessedPacket.incomingPacket != null)
                 {
@@ -26,8 +32,18 @@ namespace StickGameServer.Shared.Packet
                     throw new NotImplementedException("incoming and outgoing packet both null?");
                 }
             }
+        }
 
-            unprocessedPackets.Clear();
+        public static void Unqueue()
+        {
+            unqueuing = true;
+            ProcessPackets(_unprocessedPackets);
+            unqueuing = false;
+            
+            ProcessPackets(unprocessedPacketsDuringUnqueue);
+
+            unprocessedPacketsDuringUnqueue.Clear();
+            _unprocessedPackets.Clear();
         }
 
         private static void ProcessIncomingPacket(UnprocessedIncomingPacket incomingPacket)
@@ -42,9 +58,9 @@ namespace StickGameServer.Shared.Packet
 
             StaticPacketBase staticPacketBase;
 #if STICK_CLIENT
-            staticPacketBase = PacketRegistry.GetServerboundPacketBaseFromId(packetId);
-#else
             staticPacketBase = PacketRegistry.GetClientboundPacketBaseFromId(packetId);
+#else
+            staticPacketBase = PacketRegistry.GetServerboundPacketBaseFromId(packetId);
 #endif
 
             staticPacketBase.Handle(incomingPacket.peer, reader, incomingPacket.deliveryMethod);
@@ -62,7 +78,7 @@ namespace StickGameServer.Shared.Packet
             outgoingPacket.peer.Send(outgoingPacket.writer, outgoingPacket.deliveryMethod);
         }
 
-        public static void HandleIncomingPacket(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
+        public static void HandleIncomingPacket(NetPeer peer, NetPacketReader reader, byte channelReader, DeliveryMethod deliveryMethod)
         {
             UnprocessedIncomingPacket unprocessedIncomingPacket = new(peer, deliveryMethod, reader);
             UnprocessedPacket unprocessedPacket = new(unprocessedIncomingPacket, null);

@@ -57,9 +57,14 @@ namespace StickGameServer.Shared.Util
                 }
             }
 
-#if !STICK_CLIENT
-            Thread.Sleep(1); // Avoid busy waiting
-#endif
+            double remainingTimeMs = tickDurationMs - accumulatedTimeMs;
+
+            // Ensure it's not negative (in case the logic took longer than a tick)
+            if (remainingTimeMs > 0)
+            {
+                // Sleep for the exact time to make sure the loop runs at the desired interval
+                Thread.Sleep((int)Math.Max(remainingTimeMs, 1)); // Use max to avoid sleeping for 0 or negative times
+            }
         }
 
 #if !STICK_CLIENT
