@@ -1,9 +1,8 @@
-﻿using LiteNetLib;
+﻿using System;
+using System.Collections.Generic;
+using LiteNetLib;
 using LiteNetLib.Utils;
 using StickGameServer.Shared.Util;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace StickGameServer.Shared.Packet
 {
@@ -54,6 +53,13 @@ namespace StickGameServer.Shared.Packet
             }
 
             NetPacketReader reader = incomingPacket.reader;
+
+            if (reader.AvailableBytes <= 0)
+            {
+                SharedLog.Severe("Received packet with no bytes");
+                return;
+            }
+            
             byte packetId = reader.GetByte();
 
             StaticPacketBase staticPacketBase;

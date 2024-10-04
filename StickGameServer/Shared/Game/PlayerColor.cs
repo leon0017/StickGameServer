@@ -2,17 +2,17 @@
 {
     public enum PlayerColor
     {
-        Red,
-        Blue,
-        Green,
-        Pink,
-        Orange,
-        Yellow,
-        Black,
-        White,
-        Purple,
-        Brown,
-        Cyan,
-        Lime
+        RED = 0,
+        BLUE = 1,
+        GREEN = 2,
+        PINK = 3,
+        ORANGE = 4,
+        YELLOW = 5,
+        BLACK = 6,
+        WHITE = 7,
+        PURPLE = 8,
+        BROWN = 9,
+        CYAN = 10,
+        LIME = 11
     }
 }

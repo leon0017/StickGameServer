@@ -89,7 +89,7 @@ class Program : INetEventListener, INetLogger
         ticksDone++;
     }
     
-    static readonly Random _random = new Random();
+    static readonly Random _random = new();
     static TEnum RandomEnumValue<TEnum>() where TEnum : struct, Enum
     {
         TEnum[] vals = Enum.GetValues<TEnum>();
@@ -102,6 +102,31 @@ class Program : INetEventListener, INetLogger
         peer.player = new Player(peer, "Player", RandomEnumValue<PlayerColor>());
         peer.setupPlayer = true;
         players.Add(peer.player);
+        
+        foreach (var player in players)
+        {
+            if (player != peer.player)
+            {
+                // Create new player for other players
+                PacketRegistry.CLIENTBOUND_PLAYER_CREATE_PACKET.Send(player.connection, new ClientboundPlayerCreatePacketDS
+                {
+                    playerColor = peer.player.playerColor,
+                    temporaryGuid = peer.player.temporaryGuid,
+                    username = peer.player.username
+                });
+                
+                // Create other players for new player
+                PacketRegistry.CLIENTBOUND_PLAYER_CREATE_PACKET.Send(peer.player.connection,
+                    new ClientboundPlayerCreatePacketDS
+                    {
+                        playerColor = player.playerColor,
+                        temporaryGuid = player.temporaryGuid,
+                        username = player.username
+                    });
+                Console.WriteLine("Guid other: " + player.temporaryGuid);
+                Console.WriteLine("Guid me: " + peer.player.temporaryGuid);
+            }
+        }
     }
 
     void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketError)
@@ -130,6 +155,23 @@ class Program : INetEventListener, INetLogger
     void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
         SharedLog.Info($"Peer disconnected peer='{peer}', disconnectInfo.Reason='{disconnectInfo.Reason}'");
+
+        if (peer.player == null)
+        {
+            return;
+        }
+
+        foreach (var player in players)
+        {
+            if (player != peer.player)
+            {
+                PacketRegistry.CLIENTBOUND_PLAYER_DESTROY_PACKET.Send(player.connection, new ClientboundPlayerDestroyPacketDS
+                {
+                    temporaryGuid = peer.player.temporaryGuid
+                });
+            }
+        }
+        
         players.Remove(peer.player);
     }
 
