@@ -11,6 +11,7 @@ namespace StickGameServer.Shared.Packet
         public static readonly ClientboundPlayerMovePacket CLIENTBOUND_PLAYER_MOVE_PACKET = new();
         public static readonly ClientboundPlayerDestroyPacket CLIENTBOUND_PLAYER_DESTROY_PACKET = new();
         public static readonly ClientboundHandAnimationPacket CLIENTBOUND_HAND_ANIMATION_PACKET = new();
+        public static readonly ClientboundHelloServerPacket CLIENTBOUND_HELLO_SERVER_PACKET = new();
 
         private static readonly StaticPacketBase[] serverboundPackets = new StaticPacketBase[256];
         private static readonly StaticPacketBase[] clientboundPackets = new StaticPacketBase[256];
@@ -36,6 +37,7 @@ namespace StickGameServer.Shared.Packet
             InitPacket(CLIENTBOUND_PLAYER_MOVE_PACKET);
             InitPacket(CLIENTBOUND_PLAYER_DESTROY_PACKET);
             InitPacket(CLIENTBOUND_HAND_ANIMATION_PACKET);
+            InitPacket(CLIENTBOUND_HELLO_SERVER_PACKET);
         }
 
         private static void InitPacket<DS>(StaticPacket<DS> staticPacket)

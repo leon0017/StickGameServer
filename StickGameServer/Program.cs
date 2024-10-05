@@ -103,6 +103,11 @@ class Program : INetEventListener, INetLogger
         peer.setupPlayer = true;
         players.Add(peer.player);
         
+        PacketRegistry.CLIENTBOUND_HELLO_SERVER_PACKET.Send(peer.player.connection, new ClientboundHelloServerPacketDS
+        {
+            playerColor = peer.player.playerColor
+        });
+        
         foreach (var player in players)
         {
             if (player != peer.player)

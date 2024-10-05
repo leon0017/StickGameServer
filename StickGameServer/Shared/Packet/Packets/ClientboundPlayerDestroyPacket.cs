@@ -26,6 +26,7 @@ namespace StickGameServer.Shared.Packet.Packets
             }
 
             UnityEngine.Object.Destroy(player.gameObject);
+            StickGame.PlayerManager.playersDict.Remove(guid);
 #endif
         }
 
