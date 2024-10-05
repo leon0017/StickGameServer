@@ -18,8 +18,11 @@ namespace StickGameServer.Shared.Game
         public UnityEngine.Transform rightHand;
         public UnityEngine.Transform leftHandGeomLhand;
         public UnityEngine.Transform rightHandGeomRhand;
-        public UnityEngine.Animator leftHandAnimator;
-        public UnityEngine.Animator rightHandAnimator;
+        public StickGame.HandAnimSmootherData leftHandAnimSmootherData;
+        public StickGame.HandAnimSmootherData rightHandAnimSmootherData;
+        public StickGame.MovingObjectSmoother headSmoother;
+        public StickGame.MovingObjectSmoother leftHandSmoother;
+        public StickGame.MovingObjectSmoother rightHandSmoother;
 #endif
         
         public Player(NetPeer connection, string username, PlayerColor playerColor, Guid? temporaryGuid=null)

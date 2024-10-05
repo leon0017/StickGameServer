@@ -26,22 +26,10 @@ namespace StickGameServer.Shared.Packet.Packets
                 return;
             }
             
-            var leftTriggerValue = reader.GetFloat();
-            var leftGripValue = reader.GetFloat();
-            var rightTriggerValue = reader.GetFloat();
-            var rightGripValue = reader.GetFloat();
-
-            if (player.leftHandAnimator != null)
-            {
-                player.leftHandAnimator.SetFloat("Trigger", leftTriggerValue);
-                player.leftHandAnimator.SetFloat("Grip", leftGripValue);
-            }
-            
-            if (player.rightHandAnimator != null)
-            {
-                player.rightHandAnimator.SetFloat("Trigger", rightTriggerValue);
-                player.rightHandAnimator.SetFloat("Grip", rightGripValue);
-            }
+            player.leftHandAnimSmootherData.triggerTargetValue = reader.GetFloat();
+            player.leftHandAnimSmootherData.gripTargetValue = reader.GetFloat();
+            player.rightHandAnimSmootherData.triggerTargetValue = reader.GetFloat();
+            player.rightHandAnimSmootherData.gripTargetValue = reader.GetFloat();
 #endif
         }
 

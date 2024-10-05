@@ -32,12 +32,12 @@ namespace StickGameServer.Shared.Packet.Packets
                 return;
             }
             
-            player.ballHead.transform.position = new Vec3f(reader.GetFloatArray()).ToVector3();
-            player.leftHand.transform.position = new Vec3f(reader.GetFloatArray()).ToVector3();
-            player.rightHand.transform.position = new Vec3f(reader.GetFloatArray()).ToVector3();
-            player.ballHead.transform.rotation = new Quat4f(reader.GetFloatArray()).ToQuaternion();
-            player.leftHand.transform.rotation = new Quat4f(reader.GetFloatArray()).ToQuaternion();
-            player.rightHand.transform.rotation = new Quat4f(reader.GetFloatArray()).ToQuaternion();
+            player.headSmoother.targetPosition = new Vec3f(reader.GetFloatArray()).ToVector3();
+            player.leftHandSmoother.targetPosition = new Vec3f(reader.GetFloatArray()).ToVector3();
+            player.rightHandSmoother.targetPosition = new Vec3f(reader.GetFloatArray()).ToVector3();
+            player.headSmoother.targetRotation = new Quat4f(reader.GetFloatArray()).ToQuaternion();
+            player.leftHandSmoother.targetRotation = new Quat4f(reader.GetFloatArray()).ToQuaternion();
+            player.rightHandSmoother.targetRotation = new Quat4f(reader.GetFloatArray()).ToQuaternion();
 #endif
         }
 
